@@ -6,24 +6,24 @@ import (
 
 // Dispatcher : Manage dispatching Jobs to Workers
 type Dispatcher struct {
-	JobQueue     chan Job
-	WorkerPool   chan chan Job
+	jobQueue     chan Job
+	workerPool   chan chan Job
 	jobWaitGroup *sync.WaitGroup
 }
 
 // Start : Register and start workers
 func (d *Dispatcher) Start() {
-	for i := 0; i < cap(d.WorkerPool); i++ {
-		worker := NewWorker(d.WorkerPool, d.jobWaitGroup)
-		worker.start()
+	for i := 0; i < cap(d.workerPool); i++ {
+		w := newWorker(d.workerPool, d.jobWaitGroup)
+		w.start()
 	}
 
 	go func() {
 		for {
 			select {
-			case job := <-d.JobQueue:
+			case job := <-d.jobQueue:
 				// try to obtain workerQueue from pool, will block until one is free
-				workerQueue := <-d.WorkerPool
+				workerQueue := <-d.workerPool
 
 				// dispatch job to workerQueue
 				workerQueue <- job
@@ -37,7 +37,7 @@ func (d *Dispatcher) AddJob(job Job) {
 	// Increment first - jobs may be processed faster than incr, avoid panic on negative count
 	d.jobWaitGroup.Add(1)
 
-	d.JobQueue <- job
+	d.jobQueue <- job
 }
 
 // Stop : Ensure all jobs registered are processed
@@ -48,8 +48,8 @@ func (d *Dispatcher) Stop() {
 // NewDispatcher : Initialize new Dispatcher
 func NewDispatcher(maxWorkers int, queueSize int) *Dispatcher {
 	return &Dispatcher{
-		JobQueue:     make(chan Job, queueSize),
-		WorkerPool:   make(chan chan Job, maxWorkers),
+		jobQueue:     make(chan Job, queueSize),
+		workerPool:   make(chan chan Job, maxWorkers),
 		jobWaitGroup: &sync.WaitGroup{},
 	}
 }
