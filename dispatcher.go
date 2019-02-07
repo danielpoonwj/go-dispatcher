@@ -40,6 +40,11 @@ func (d *Dispatcher) AddJob(job Job) {
 	d.jobQueue <- job
 }
 
+// QueuedJobCount : Get number of jobs in queue. Note: some may already dispatched to the worker pool
+func (d *Dispatcher) QueuedJobCount() int {
+	return len(d.jobQueue)
+}
+
 // Stop : Ensure all jobs registered are processed
 func (d *Dispatcher) Stop() {
 	d.jobWaitGroup.Wait()

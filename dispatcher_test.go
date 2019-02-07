@@ -39,7 +39,7 @@ func TestDispatcher(t *testing.T) {
 	dispatcher.AddJob(j1)
 	time.Sleep(initWaitTime)
 
-	assert.Equal(t, 0, len(dispatcher.JobQueue), "No Jobs should be in queue")
+	assert.Equal(t, 0, dispatcher.QueuedJobCount(), "No Jobs should be in queue")
 	j1.AssertCalled(t, "Process")
 
 	j2 := NewMockJob(delayTime)
@@ -49,14 +49,14 @@ func TestDispatcher(t *testing.T) {
 	// quirk: number of jobs processing can be workers + 1
 	// happens when job is received from JobQueue but no workers free yet
 	// technically in limbo but will be considered processing Job
-	assert.Equal(t, 0, len(dispatcher.JobQueue), "No Jobs should be in queue")
+	assert.Equal(t, 0, dispatcher.QueuedJobCount(), "No Jobs should be in queue")
 	j2.AssertNotCalled(t, "Process")
 
 	j3 := NewMockJob(delayTime)
 	dispatcher.AddJob(j3)
 	time.Sleep(initWaitTime)
 
-	assert.Equal(t, 1, len(dispatcher.JobQueue), "j3 should be in queue")
+	assert.Equal(t, 1, dispatcher.QueuedJobCount(), "j3 should be in queue")
 	j3.AssertNotCalled(t, "Process")
 
 	dispatcher.Stop()
@@ -66,5 +66,5 @@ func TestDispatcher(t *testing.T) {
 	j2.AssertCalled(t, "Process")
 	j3.AssertCalled(t, "Process")
 
-	assert.Equal(t, 0, len(dispatcher.JobQueue), "No jobs should be in queue")
+	assert.Equal(t, 0, dispatcher.QueuedJobCount(), "No jobs should be in queue")
 }
