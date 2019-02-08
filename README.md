@@ -1,5 +1,7 @@
 # go-dispatcher
 
+[![Build Status](https://travis-ci.org/danielpoonwj/go-dispatcher.svg?branch=master)](https://travis-ci.org/danielpoonwj/go-dispatcher)
+
 ## Introduction
 
 This library is a simple implementation of a worker pool in `go`, building on the concepts from [this](http://marcio.io/2015/07/handling-1-million-requests-per-minute-with-golang/) article.
@@ -30,33 +32,33 @@ go get github.com/danielpoonwj/go-dispatcher
 package main
 
 import (
-  "fmt"
+	"fmt"
 
-  "github.com/danielpoonwj/go-dispatcher"
+	"github.com/danielpoonwj/go-dispatcher"
 )
 
 type Job struct {
-  msg string
+	msg string
 }
 
 func (j *Job) Process() {
-  fmt.Println(j.msg)
+	fmt.Println(j.msg)
 }
 
 func NewJob(msg string) *Job {
-  return &Job{msg: msg}
+	return &Job{msg: msg}
 }
 
 func main() {
-  d := dispatcher.NewDispatcher(1, 3)
-  d.Start()
+	d := dispatcher.NewDispatcher(1, 3)
+	d.Start()
 
-  j1 := NewJob("Job 1")
-  d.AddJob(j1)
+	j1 := NewJob("Job 1")
+	d.AddJob(j1)
 
-  j2 := NewJob("Job 2")
-  d.AddJob(j2)
+	j2 := NewJob("Job 2")
+	d.AddJob(j2)
 
-  d.Stop()
+	d.Stop()
 }
 ```
